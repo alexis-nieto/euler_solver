@@ -26,7 +26,7 @@ def get_float(prompt_text: str, min_val: Optional[float] = None, greater_than: O
     while True:
         try:
             # Usamos FloatPrompt de Rich para una experiencia input robusta
-            val = FloatPrompt.ask(f"[cyan]{prompt_text}[/cyan]")
+            val = FloatPrompt.ask(prompt_text)
             
             if min_val is not None and val < min_val:
                 console.print(f"[bold red]Error:[/bold red] El valor debe ser mayor o igual a {min_val}.")
@@ -51,7 +51,7 @@ def get_function_input(prompt_text: str) -> Tuple[Callable[[float, float], float
         Tuple[Callable, str]: Retorna la función 'compilada' y el string original.
     """
     while True:
-        func_str = Prompt.ask(f"[cyan]{prompt_text}[/cyan]")
+        func_str = Prompt.ask(prompt_text)
         try:
             func = parse_function(func_str)
             
@@ -67,7 +67,7 @@ def get_function_input(prompt_text: str) -> Tuple[Callable[[float, float], float
             return func, func_str
         except FunctionParserError as e:
             console.print(f"[bold red]Error de Función:[/bold red] {e}")
-            console.print("[yellow]Asegúrese de usar sintaxis Python/SymPy (ej: x + sin(y), x**2, etc.)[/yellow]")
+            console.print("[dim]Asegúrese de usar sintaxis Python/SymPy (ej: x + sin(y), x**2, etc.)[/dim]")
 
 def wait_for_enter():
     """Pausa la ejecución hasta que el usuario presione Enter."""

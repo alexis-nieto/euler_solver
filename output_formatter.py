@@ -37,11 +37,11 @@ def display_results_table(h: float,
     if improved_euler_points: modes.append("Heun")
     title = f"Resultados: {' & '.join(modes)} (h={h})"
 
-    table = Table(title=title, show_header=True, header_style="bold magenta")
+    table = Table(title=title, show_header=True, header_style="bold", title_style="bold")
     
-    # Definir columnas base
-    table.add_column("Iter", justify="right", style="cyan", no_wrap=True)
-    table.add_column("x_i", justify="right", style="green")
+    # Definir columnas base (Iteración y X)
+    table.add_column("Iter", justify="right", style="dim", no_wrap=True)
+    table.add_column("x_i", justify="right")
     
     # Calcular num_steps basándose en la lista que exista
     base_list = euler_points if euler_points else improved_euler_points
@@ -49,12 +49,13 @@ def display_results_table(h: float,
 
     # Orden solicitado: Exacta antes que aproximaciones
     if real_values:
-        table.add_column("Verdadero y(x)", justify="right", style="white")
+        # Valor verdadero destacado (Bold)
+        table.add_column("Verdadero y(x)", justify="right", style="bold")
 
     if euler_points:
-        table.add_column("Euler y_i", justify="right", style="yellow")
+        table.add_column("Euler y_i", justify="right")
     if improved_euler_points:
-        table.add_column("Heun y_i", justify="right", style="blue")
+        table.add_column("Heun y_i", justify="right")
     
     if real_values:
         table.add_column("% Error", justify="right", style="red")

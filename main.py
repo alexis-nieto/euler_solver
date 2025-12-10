@@ -25,9 +25,9 @@ def show_header():
     """Muestra el banner principal de la aplicación."""
     console.rule()
     console.print(Panel.fit(
-        "[bold magenta]Solucionador Numérico de EDOs[/bold magenta]\n"
-        "[dim]Métodos de Euler y Heun[/dim]",
-        border_style="cyan"
+        "[bold]Solucionador Numérico de EDOs[/bold]\n"
+        "Métodos de Euler y Heun",
+        border_style="white"
     ))
 
 def solve_single_method(initial_method: str):
@@ -38,7 +38,7 @@ def solve_single_method(initial_method: str):
     current_method = initial_method
     
     console.rule()
-    console.print(f"\n[bold green]-- Nueva Función --[/bold green]")
+    console.print(f"\n[bold]-- Nueva Función --[/bold]")
     
     console.print("Ingrese la función f(x, y) para la EDO [bold]y' = f(x, y)[/bold]")
     f_func, f_str = get_function_input("f(x, y) = ")
@@ -46,7 +46,7 @@ def solve_single_method(initial_method: str):
     while True:
         # Mostrar qué método se está configurando
         method_name = "Método de Euler" if current_method == 'EULER' else "Euler Mejorado (Heun)"
-        console.print(f"\n[bold magenta]Configuración para: {method_name}[/bold magenta]")
+        console.print(f"\n[bold]Configuración para: {method_name}[/bold]")
         
         # Bucle de parámetros
         t0 = get_float("Ingrese valor inicial x0: ")
@@ -59,9 +59,9 @@ def solve_single_method(initial_method: str):
         # Mostrar función actual (Movido a petición del usuario para estar cerca de resultados)
         console.print("")
         console.print(Panel(
-            f"[bold green]{f_str}[/bold green]",
-            title="[green]Función EDO Original[/green]",
-            border_style="green",
+            f"[bold]{f_str}[/bold]",
+            title="[bold]Función EDO Original[/bold]",
+            border_style="white",
             expand=False
         ))
         
@@ -69,7 +69,7 @@ def solve_single_method(initial_method: str):
             euler_pts = None
             improved_pts = None
             
-            with console.status(f"[bold green]Calculando ({current_method})...[/bold green]"):
+            with console.status(f"[bold]Calculando ({current_method})...[/bold]"):
                 if current_method == 'EULER':
                     euler_pts = euler_method(f_func, t0, y0, h, tf)
                 elif current_method == 'HEUN':
@@ -78,17 +78,17 @@ def solve_single_method(initial_method: str):
             # Intentar exacta
             real_values = None
             try:
-                with console.status("[bold cyan]Buscando solución analítica...[/bold cyan]"):
+                with console.status("[bold]Buscando solución analítica...[/bold]"):
                     result_exact = solve_exact_ode(f_str, t0, y0)
                     
                     if result_exact:
                         real_func, expr_str = result_exact
                         
-                        # Mostrar la función estilizada en un Panel Verde
+                        # Mostrar la función estilizada en un Panel Verde (Éxito se mantiene verde discreto)
                         console.print("")
                         console.print(Panel(
                             f"[bold]y(x) = {expr_str}[/bold]",
-                            title="[green]Solución Analítica Encontrada[/green]",
+                            title="[bold green]Solución Analítica Encontrada[/bold green]",
                             border_style="green",
                             expand=False
                         ))
@@ -96,7 +96,7 @@ def solve_single_method(initial_method: str):
                         ref_pts = euler_pts if euler_pts else improved_pts
                         real_values = [real_func(p[0]) for p in ref_pts]
                     else:
-                        console.print("[yellow]⚠ Sin solución analítica simple (omitendo errores).[/yellow]")
+                        console.print("[dim]⚠ Sin solución analítica simple (omitendo errores).[/dim]")
             except Exception:
                 pass 
             # Mostrar tabla adaptada
@@ -108,11 +108,11 @@ def solve_single_method(initial_method: str):
             
         console.rule()
 
-        # Menú Post-Cálculo Avanzado
+        # Menú Post-Cálculo
         console.print("\n[bold]¿Qué desea hacer?[/bold]")
-        console.print("1. [cyan]Reintentar por Euler[/cyan] (Misma función, nuevos parámetros)")
-        console.print("2. [blue]Reintentar por Heun[/blue] (Misma función, nuevos parámetros)")
-        console.print("3. [yellow]Regresar al Menú Principal[/yellow]")
+        console.print("1. Reintentar por Euler (Misma función, nuevos parámetros)")
+        console.print("2. Reintentar por Heun (Misma función, nuevos parámetros)")
+        console.print("3. Regresar al Menú Principal")
         console.print("4. [red]Salir de la Aplicación[/red]")
         
         choice = input("\nOpción: ").strip()
@@ -126,7 +126,7 @@ def solve_single_method(initial_method: str):
         elif choice == "3":
             break 
         elif choice == "4":
-            console.print("[yellow]Saliendo...[/yellow]")
+            console.print("[dim]Saliendo...[/dim]")
             sys.exit(0)
         else:
             console.print("[red]Opción no válida, regresando al menú principal por seguridad.[/red]")
@@ -137,8 +137,8 @@ def main_menu():
     while True:
         show_header()
         console.print("\n[bold]Seleccione el Método Numérico:[/bold]")
-        console.print("1. [green]Método de Euler[/green]")
-        console.print("2. [blue]Euler Mejorado (Heun)[/blue]")
+        console.print("1. Método de Euler")
+        console.print("2. Euler Mejorado (Heun)")
         console.print("3. [red]Salir[/red]")
         
         choice = input("\nSeleccione una opción (1-3): ").strip()
