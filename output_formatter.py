@@ -13,63 +13,82 @@ import math
 
 console = Console()
 
-def display_results_table(euler_points: List[Tuple[float, float]], 
-                          improved_euler_points: List[Tuple[float, float]],
-                          h: float,
+def display_results_table(h: float,
+                          euler_points: Optional[List[Tuple[float, float]]] = None, 
+                          improved_euler_points: Optional[List[Tuple[float, float]]] = None,
                           real_values: Optional[List[float]] = None):
     """
-    Genera y muestra una tabla comparativa de los resultados.
-    Ahora incluye opción para mostrar valor real y error relativo.
+    Genera y muestra una tabla comparativa dinámica.
+    Dependiendo de qué listas se pasen (euler o improved o ambas), la tabla se adapta.
 
     Args:
-        euler_points: Lista (x, y) Euler.
-        improved_euler_points: Lista (x, y) Euler Mejorado.
         h: Tamaño de paso.
-        real_values: Lista opcional con valores exactos y(x) para cada punto.
+        euler_points: Lista (x, y) Euler (Opcional).
+        improved_euler_points: Lista (x, y) Euler Mejorado (Opcional).
+        real_values: Lista opcional con valores exactos y(x).
     """
-    table = Table(title=f"Comparación de Métodos (h={h})", show_header=True, header_style="bold magenta")
+    if not euler_points and not improved_euler_points:
+        console.print("[red]Error: No data to display[/red]")
+        return
+
+    # Título dinámico
+    modes = []
+    if euler_points: modes.append("Euler")
+    if improved_euler_points: modes.append("Heun")
+    title = f"Resultados: {' & '.join(modes)} (h={h})"
+
+    table = Table(title=title, show_header=True, header_style="bold magenta")
     
-    # Definir columnas
+    # Definir columnas base
     table.add_column("Iter", justify="right", style="cyan", no_wrap=True)
     table.add_column("x_i", justify="right", style="green")
-    table.add_column("Euler y_i", justify="right", style="yellow")
-    table.add_column("Heun y_i", justify="right", style="blue")
+    
+    # Calcular num_steps basándose en la lista que exista
+    base_list = euler_points if euler_points else improved_euler_points
+    num_steps = len(base_list)
+
+    if euler_points:
+        table.add_column("Euler y_i", justify="right", style="yellow")
+    if improved_euler_points:
+        table.add_column("Heun y_i", justify="right", style="blue")
     
     if real_values:
-        table.add_column("Exacta y(x)", justify="right", style="white")
-        table.add_column("% Error (Heun)", justify="right", style="red")
+        table.add_column("Verdadero y(x)", justify="right", style="white")
+        table.add_column("% Error", justify="right", style="red")
 
-    num_steps = len(euler_points)
-    
     for i in range(num_steps):
-        x_eu, y_eu = euler_points[i]
-        _, y_imp = improved_euler_points[i]
+        # Obtenemos x del que esté disponible (serán iguales si hay ambos)
+        x_val = base_list[i][0]
+        f_x = f"{x_val:.4f}"
         
-        # Formatear números para legibilidad (8 cifras significativas como solicitado)
-        # ".8g" usa notación científica si es necesario o decimal compacto.
-        f_x = f"{x_eu:.4f}"
-        f_yeu = f"{y_eu:.8g}"
-        f_yimp = f"{y_imp:.8g}"
+        row_data = [str(i), f_x]
         
-        row_data = [str(i), f_x, f_yeu, f_yimp]
+        # Valor aproximado para calcular error (priorizamos Heun si existe, sino Euler)
+        y_approx = 0.0
         
+        if euler_points:
+            y_eu = euler_points[i][1]
+            row_data.append(f"{y_eu:.8g}")
+            if not improved_euler_points: y_approx = y_eu # Si solo es Euler, el error es de Euler
+
+        if improved_euler_points:
+            y_imp = improved_euler_points[i][1]
+            row_data.append(f"{y_imp:.8g}")
+            y_approx = y_imp # Prioridad para error
+
         if real_values:
             val_real = real_values[i]
             
-            # Formatear valor real
             if math.isnan(val_real):
                 f_real = "N/A"
                 f_error = "N/A"
             else:
                 f_real = f"{val_real:.8g}"
-                
-                # Calcular error relativo: |(Real - Aprox) / Real| * 100
-                # Usamos la aproximación de Heun para el error
-                if abs(val_real) < 1e-12: # Evitar división por cero si real es 0
+                if abs(val_real) < 1e-12:
                     f_error = "undef"
                 else:
-                    err = abs((val_real - y_imp) / val_real) * 100.0
-                    f_error = f"{err:.4g}%" # 4 cifras para el error es suficiente usualmente
+                    err = abs((val_real - y_approx) / val_real) * 100.0
+                    f_error = f"{err:.4g}%"
             
             row_data.append(f_real)
             row_data.append(f_error)
