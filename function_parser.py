@@ -91,51 +91,63 @@ def parse_function(expression_str: str) -> Callable[[float, float], float]:
     except Exception as e:
         raise FunctionParserError(f"Error al procesar la función: {e}")
 
+import signal
+
 def solve_exact_ode(expression_str: str, x0: float, y0: float) -> Callable[[float], float]:
     """
     Intenta encontrar la solución analítica exacta para y' = f(x, y) con y(x0) = y0.
+    INCLUYE TIMEOUT DE 3 SEGUNDOS para evitar bloqueos en EDOs complejas.
     
     Args:
         expression_str: String de f(x, y)
         x0, y0: Condiciones iniciales
         
     Returns:
-        Callable[[float], float] o None: La función real solución y(x), o None si falla.
+        Callable[[float], float] o None: La función real solución y(x), o None si falla/timeout.
     """
+    
+    # Manejador para el timeout
+    def handler(signum, frame):
+        raise TimeoutError("Cálculo excedió el tiempo límite.")
+
     try:
-        x = sp.symbols('x')
-        y = sp.Function('y')(x)
+        # Configurar alarma de 3 segundos
+        signal.signal(signal.SIGALRM, handler)
+        signal.alarm(3)
         
-        # Parsear sympy expression para la EDO: y' = f(x, y)
-        # Necesitamos sustituir 'y' por la Función 'y(x)' en la expresión
-        local_dict = {'x': x, 'y': y, 'e': sp.E, 'pi': sp.pi}
-        # Nota: sympify puede ser truculento con funciones, hacemos un paso intermedio simple
-        # Primero parseamos como si fueran simbolos
-        f_sym = sp.sympify(expression_str, locals={'x': x, 'y': sp.symbols('y'), 'e': sp.E})
-        # Ahora sustituimos simbolo y por funcion y(x)
-        ode_eq = sp.Eq(y.diff(x), f_sym.subs(sp.symbols('y'), y))
-        
-        # Resolver con condiciones iniciales ics={y(x0): y0}
-        sol = sp.dsolve(ode_eq, y, ics={y.subs(x, x0): y0})
-        
-        # sol suele ser una lista o una igualdad Eq(y(x), ...)
-        if isinstance(sol, list):
-            sol = sol[0] # Tomamos la primera rama si hay varias
+        try:
+            x = sp.symbols('x')
+            y = sp.Function('y')(x)
             
-        rhs = sol.rhs # Lado derecho de la solución explicita y(x) = ...
-        
-        # Convertir a lambda
-        real_lambda = sp.lambdify(x, rhs, modules='math')
-        
-        def safe_real_y(val_x: float) -> float:
-            try:
-                return float(real_lambda(val_x))
-            except Exception:
-                return float('nan') # Si falla evaluacion (ej dominios complejos)
+            # Parsear sympy expression
+            local_dict = {'x': x, 'y': y, 'e': sp.E, 'pi': sp.pi}
+            f_sym = sp.sympify(expression_str, locals={'x': x, 'y': sp.symbols('y'), 'e': sp.E})
+            ode_eq = sp.Eq(y.diff(x), f_sym.subs(sp.symbols('y'), y))
+            
+            # Resolver
+            sol = sp.dsolve(ode_eq, y, ics={y.subs(x, x0): y0})
+            
+            if isinstance(sol, list):
+                sol = sol[0]
                 
-        return safe_real_y
+            rhs = sol.rhs
+            real_lambda = sp.lambdify(x, rhs, modules='math')
+            
+            def safe_real_y(val_x: float) -> float:
+                try:
+                    return float(real_lambda(val_x))
+                except Exception:
+                    return float('nan')
+                    
+            return safe_real_y
+            
+        finally:
+            # Desactivar alarma pase lo que pase
+            signal.alarm(0)
+
+    except TimeoutError:
+        # El llamador manejará el None mostrando un mensaje de advertencia si desea
+        return None
         
     except Exception:
-        # Si dsolve falla o es muy complejo, retornamos None silenciosamente
-        # para que el programa siga solo con la parte numerica.
         return None
