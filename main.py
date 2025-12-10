@@ -69,16 +69,25 @@ def solve_single_method(initial_method: str):
             real_values = None
             try:
                 with console.status("[bold cyan]Buscando solución analítica...[/bold cyan]"):
-                    real_func = solve_exact_ode(f_str, t0, y0)
-                    if real_func:
+                    result_exact = solve_exact_ode(f_str, t0, y0)
+                    
+                    if result_exact:
+                        real_func, expr_str = result_exact
+                        
+                        # Mostrar la función estilizada en un Panel Verde
+                        console.print(Panel(
+                            f"[bold]y(x) = {expr_str}[/bold]",
+                            title="[green]✔ Solución Analítica Encontrada[/green]",
+                            border_style="green",
+                            expand=False
+                        ))
+
                         ref_pts = euler_pts if euler_pts else improved_pts
                         real_values = [real_func(p[0]) for p in ref_pts]
-                        console.print("[green]✔ Solución analítica encontrada.[/green]")
                     else:
                         console.print("[yellow]⚠ Sin solución analítica simple (omitendo errores).[/yellow]")
             except Exception:
                 pass 
-                
             # Mostrar tabla adaptada
             display_results_table(h, euler_points=euler_pts, improved_euler_points=improved_pts, real_values=real_values)
             

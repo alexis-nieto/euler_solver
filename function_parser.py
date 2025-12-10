@@ -5,7 +5,7 @@ ingresadas por el usuario en formato string a expresiones ejecutables de Python/
 """
 
 import sympy as sp
-from typing import Callable, Tuple, Any
+from typing import Callable, Tuple, Any, Optional
 
 class FunctionParserError(Exception):
     """Excepción personalizada para errores en el análisis de funciones."""
@@ -93,7 +93,7 @@ def parse_function(expression_str: str) -> Callable[[float, float], float]:
 
 import signal
 
-def solve_exact_ode(expression_str: str, x0: float, y0: float) -> Callable[[float], float]:
+def solve_exact_ode(expression_str: str, x0: float, y0: float) -> Optional[Tuple[Callable[[float], float], str]]:
     """
     Intenta encontrar la solución analítica exacta para y' = f(x, y) con y(x0) = y0.
     INCLUYE TIMEOUT DE 3 SEGUNDOS para evitar bloqueos en EDOs complejas.
@@ -103,7 +103,8 @@ def solve_exact_ode(expression_str: str, x0: float, y0: float) -> Callable[[floa
         x0, y0: Condiciones iniciales
         
     Returns:
-        Callable[[float], float] o None: La función real solución y(x), o None si falla/timeout.
+        (Callable, str): Tupla con (función lambda, representación string) si tiene éxito.
+        None: Si falla/timeout.
     """
     
     # Manejador para el timeout
@@ -139,7 +140,7 @@ def solve_exact_ode(expression_str: str, x0: float, y0: float) -> Callable[[floa
                 except Exception:
                     return float('nan')
                     
-            return safe_real_y
+            return safe_real_y, str(rhs)
             
         finally:
             # Desactivar alarma pase lo que pase
