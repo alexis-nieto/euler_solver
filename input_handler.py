@@ -6,10 +6,24 @@ Utiliza 'rich' para prompts estéticos cuando sea posible, aunque input() están
 
 from typing import Callable, Optional, Tuple
 from rich.console import Console
-from rich.prompt import Prompt, FloatPrompt
+from rich.prompt import Prompt, FloatPrompt, IntPrompt
 from function_parser import parse_function, FunctionParserError
 
 console = Console()
+
+def get_int(prompt_text: str, min_val: Optional[int] = None, max_val: Optional[int] = None, default: Optional[int] = None) -> int:
+    """
+    Solicita al usuario un número entero.
+    """
+    while True:
+        val = IntPrompt.ask(prompt_text, default=default)
+        if min_val is not None and val < min_val:
+            console.print(f"[bold red]Error:[/bold red] El valor debe ser mayor o igual a {min_val}.")
+            continue
+        if max_val is not None and val > max_val:
+            console.print(f"[bold red]Error:[/bold red] El valor debe ser menor o igual a {max_val}.")
+            continue
+        return val
 
 def get_float(prompt_text: str, min_val: Optional[float] = None, greater_than: Optional[float] = None) -> float:
     """

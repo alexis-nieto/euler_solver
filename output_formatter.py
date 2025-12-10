@@ -16,7 +16,8 @@ console = Console()
 def display_results_table(h: float,
                           euler_points: Optional[List[Tuple[float, float]]] = None, 
                           improved_euler_points: Optional[List[Tuple[float, float]]] = None,
-                          real_values: Optional[List[float]] = None):
+                          real_values: Optional[List[float]] = None,
+                          decimals: int = 8):
     """
     Genera y muestra una tabla comparativa dinámica.
     Dependiendo de qué listas se pasen (euler o improved o ambas), la tabla se adapta.
@@ -26,6 +27,7 @@ def display_results_table(h: float,
         euler_points: Lista (x, y) Euler (Opcional).
         improved_euler_points: Lista (x, y) Euler Mejorado (Opcional).
         real_values: Lista opcional con valores exactos y(x).
+        decimals: Número de decimales para mostrar (default: 8).
     """
     if not euler_points and not improved_euler_points:
         console.print("[red]Error: No data to display[/red]")
@@ -63,7 +65,7 @@ def display_results_table(h: float,
     for i in range(num_steps):
         # Obtenemos x del que esté disponible
         x_val = base_list[i][0]
-        f_x = f"{x_val:.4f}"
+        f_x = f"{x_val:.4f}" # x suele ser limpio con 4
         
         row_data = [str(i), f_x]
         
@@ -83,19 +85,19 @@ def display_results_table(h: float,
             if math.isnan(val_real):
                 f_real = "N/A"
             else:
-                # Forzar 8 decimales Fijos (.8f)
-                f_real = f"{val_real:.8f}"
+                # Decimales dinámicos
+                f_real = f"{val_real:.{decimals}f}"
             
             row_data.append(f_real)
 
         if euler_points:
             y_eu = euler_points[i][1]
-            approx_data.append(f"{y_eu:.8f}")
+            approx_data.append(f"{y_eu:.{decimals}f}")
             if not improved_euler_points: y_approx = y_eu
 
         if improved_euler_points:
             y_imp = improved_euler_points[i][1]
-            approx_data.append(f"{y_imp:.8f}")
+            approx_data.append(f"{y_imp:.{decimals}f}")
             y_approx = y_imp 
 
         row_data.extend(approx_data)

@@ -13,7 +13,7 @@ from rich.panel import Panel
 try:
     from function_parser import FunctionParserError, solve_exact_ode
     from numerical_methods import euler_method, improved_euler_method
-    from input_handler import get_float, get_function_input, wait_for_enter
+    from input_handler import get_float, get_int, get_function_input, wait_for_enter
     from output_formatter import display_results_table, display_summary
 except ImportError as e:
     print(f"Error crítico importando módulos: {e}")
@@ -53,6 +53,7 @@ def solve_single_method(initial_method: str):
         y0 = get_float("Ingrese valor inicial y0")
         tf = get_float("Ingrese valor final x_final", greater_than=t0)
         h = get_float("Ingrese tamaño de paso h", min_val=0.000001)
+        decimals = get_int("Decimales de precisión (default 8)", min_val=0, max_val=20, default=8)
 
         console.rule()
 
@@ -100,7 +101,7 @@ def solve_single_method(initial_method: str):
             except Exception:
                 pass 
             # Mostrar tabla adaptada
-            display_results_table(h, euler_points=euler_pts, improved_euler_points=improved_pts, real_values=real_values)
+            display_results_table(h, euler_points=euler_pts, improved_euler_points=improved_pts, real_values=real_values, decimals=decimals)
             display_summary(t0, y0, tf, h, f_str)
             
         except Exception as e:
