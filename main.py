@@ -49,10 +49,10 @@ def solve_single_method(initial_method: str):
         console.print(f"\n[bold]Configuración para: {method_name}[/bold]")
         
         # Bucle de parámetros
-        t0 = get_float("Ingrese valor inicial x0: ")
-        y0 = get_float("Ingrese valor inicial y0: ")
-        tf = get_float("Ingrese valor final x_final: ", greater_than=t0)
-        h = get_float("Ingrese tamaño de paso h: ", min_val=0.000001)
+        t0 = get_float("Ingrese valor inicial x0")
+        y0 = get_float("Ingrese valor inicial y0")
+        tf = get_float("Ingrese valor final x_final", greater_than=t0)
+        h = get_float("Ingrese tamaño de paso h", min_val=0.000001)
 
         console.rule()
 
@@ -96,7 +96,7 @@ def solve_single_method(initial_method: str):
                         ref_pts = euler_pts if euler_pts else improved_pts
                         real_values = [real_func(p[0]) for p in ref_pts]
                     else:
-                        console.print("[dim]⚠ Sin solución analítica simple (omitendo errores).[/dim]")
+                        console.print("[dim]Sin solución analítica simple (omitendo errores).[/dim]")
             except Exception:
                 pass 
             # Mostrar tabla adaptada

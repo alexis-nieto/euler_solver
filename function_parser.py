@@ -107,14 +107,18 @@ def solve_exact_ode(expression_str: str, x0: float, y0: float) -> Optional[Tuple
         None: Si falla/timeout.
     """
     
+    # Identificar si podemos usar señales (Unix-only) para timeout
+    has_alarm = hasattr(signal, 'SIGALRM')
+    
     # Manejador para el timeout
     def handler(signum, frame):
         raise TimeoutError("Cálculo excedió el tiempo límite.")
 
     try:
-        # Configurar alarma de 3 segundos
-        signal.signal(signal.SIGALRM, handler)
-        signal.alarm(3)
+        # Configurar alarma de 3 segundos solo si existe SIGALRM
+        if has_alarm:
+            signal.signal(signal.SIGALRM, handler)
+            signal.alarm(3)
         
         try:
             x = sp.symbols('x')
@@ -143,8 +147,9 @@ def solve_exact_ode(expression_str: str, x0: float, y0: float) -> Optional[Tuple
             return safe_real_y, str(rhs)
             
         finally:
-            # Desactivar alarma pase lo que pase
-            signal.alarm(0)
+            # Desactivar alarma pase lo que pase si se usó
+            if has_alarm:
+                signal.alarm(0)
 
     except TimeoutError:
         # El llamador manejará el None mostrando un mensaje de advertencia si desea
