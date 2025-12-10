@@ -11,7 +11,7 @@ from rich.panel import Panel
 # Importación de módulos locales
 # Asegura que el path sea correcto si se ejecuta desde el directorio
 try:
-    from function_parser import FunctionParserError
+    from function_parser import FunctionParserError, solve_exact_ode
     from numerical_methods import euler_method, improved_euler_method
     from input_handler import get_float, get_function_input, wait_for_enter
     from output_formatter import display_results_table, display_summary
@@ -25,8 +25,8 @@ def show_header():
     """Muestra el banner principal de la aplicación."""
     console.clear()
     console.print(Panel.fit(
-        "[bold magenta]Solucionador Numérico de EDOs[/bold magenta]\n"
-        "[dim]Métodos de Euler y Euler Mejorado[/dim]",
+        "[bold magenta]Solucionador Numérico de EDOs v5.1[/bold magenta]\n"
+        "[dim]Calculando solución exacta y errores relativos[/dim]",
         border_style="cyan"
     ))
 
@@ -42,19 +42,36 @@ def solve_ode_workflow():
     t0 = get_float("Ingrese valor inicial x0: ")
     y0 = get_float("Ingrese valor inicial y0: ")
     tf = get_float("Ingrese valor final x_final: ", greater_than=t0)
-    h = get_float("Ingrese tamaño de paso h: ", min_val=0.000001) # Evitar h=0 o negativo
+    h = get_float("Ingrese tamaño de paso h: ", min_val=0.000001) 
     
     # 3. Mostrar resumen
     display_summary(t0, y0, tf, h, f_str)
     
     # 4. Calcular soluciones
     try:
-        with console.status("[bold green]Calculando soluciones...[/bold green]"):
+        with console.status("[bold green]Calculando simulaciones...[/bold green]"):
             euler_pts = euler_method(f_func, t0, y0, h, tf)
             improved_pts = improved_euler_method(f_func, t0, y0, h, tf)
             
-        # 5. Mostrar resultados
-        display_results_table(euler_pts, improved_pts, h)
+        # 5. Intentar solución exacta
+        real_values = None
+        try:
+            with console.status("[bold cyan]Buscando solución analítica...[/bold cyan]"):
+                real_func = solve_exact_ode(f_str, t0, y0)
+                
+                if real_func:
+                    # Generar puntos reales coincidiendo con los x de la simulación
+                    real_values = []
+                    for (x_i, _) in euler_pts:
+                        real_values.append(real_func(x_i))
+                    console.print("[green]✔ Solución analítica encontrada.[/green]")
+                else:
+                    console.print("[yellow]⚠ No se encontró solución analítica simple (se omiten columnas de error).[/yellow]")
+        except Exception as e:
+            console.print(f"[dim]Error calculando exacta: {e}[/dim]")
+
+        # 6. Mostrar resultados
+        display_results_table(euler_pts, improved_pts, h, real_values=real_values)
         
     except Exception as e:
         console.print(f"[bold red]Error durante el cálculo:[/bold red] {e}")
