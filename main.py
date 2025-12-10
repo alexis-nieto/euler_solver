@@ -30,24 +30,24 @@ def show_header():
         border_style="cyan"
     ))
 
-def solve_single_method(method_type: str):
+def solve_single_method(initial_method: str):
     """
-    Flujo de trabajo para un método específico.
-    method_type: 'EULER' o 'HEUN'
+    Flujo de trabajo con capacidad de reintentos y cambio de método.
+    initial_method: 'EULER' o 'HEUN'
     """
-    console.print(f"\n[bold green]-- Nueva Resolución ({method_type}) --[/bold green]")
+    current_method = initial_method
     
-    # 1. Obtener función (se mantiene constante si se reintenta solo params)
-    # Pero según solicitud de reintentar "misma funcion con otros parametros",
-    # debemos pedir la función una vez y luego entrar al loop de parámetros.
+    console.print(f"\n[bold green]-- Nueva Resolución --[/bold green]")
     
     console.print("Ingrese la función f(x, y) para la EDO [bold]y' = f(x, y)[/bold]")
     f_func, f_str = get_function_input("f(x, y) = ")
     
     while True:
-        # Bucle de parámetros
-        console.print("\n[dim]Configuración de parámetros:[/dim]")
+        # Mostrar qué método se está configurando
+        method_name = "Método de Euler" if current_method == 'EULER' else "Euler Mejorado (Heun)"
+        console.print(f"\n[bold magenta]Configuración para: {method_name}[/bold magenta]")
         
+        # Bucle de parámetros
         t0 = get_float("Ingrese valor inicial x0: ")
         y0 = get_float("Ingrese valor inicial y0: ")
         tf = get_float("Ingrese valor final x_final: ", greater_than=t0)
@@ -59,10 +59,10 @@ def solve_single_method(method_type: str):
             euler_pts = None
             improved_pts = None
             
-            with console.status(f"[bold green]Calculando ({method_type})...[/bold green]"):
-                if method_type == 'EULER':
+            with console.status(f"[bold green]Calculando ({current_method})...[/bold green]"):
+                if current_method == 'EULER':
                     euler_pts = euler_method(f_func, t0, y0, h, tf)
-                elif method_type == 'HEUN':
+                elif current_method == 'HEUN':
                     improved_pts = improved_euler_method(f_func, t0, y0, h, tf)
             
             # Intentar exacta
@@ -71,14 +71,13 @@ def solve_single_method(method_type: str):
                 with console.status("[bold cyan]Buscando solución analítica...[/bold cyan]"):
                     real_func = solve_exact_ode(f_str, t0, y0)
                     if real_func:
-                        # Usar los puntos del método activo para generar los x
                         ref_pts = euler_pts if euler_pts else improved_pts
                         real_values = [real_func(p[0]) for p in ref_pts]
                         console.print("[green]✔ Solución analítica encontrada.[/green]")
                     else:
                         console.print("[yellow]⚠ Sin solución analítica simple (omitendo errores).[/yellow]")
             except Exception:
-                pass # Ignorar fallos de exacta
+                pass 
                 
             # Mostrar tabla adaptada
             display_results_table(h, euler_points=euler_pts, improved_euler_points=improved_pts, real_values=real_values)
@@ -86,19 +85,24 @@ def solve_single_method(method_type: str):
         except Exception as e:
             console.print(f"[bold red]Error de cálculo:[/bold red] {e}")
             
-        # Menú Post-Cálculo
+        # Menú Post-Cálculo Avanzado
         console.print("\n[bold]¿Qué desea hacer?[/bold]")
-        console.print("1. [cyan]Reintentar[/cyan] (Misma función, nuevos parámetros)")
-        console.print("2. [yellow]Regresar al Menú Principal[/yellow]")
-        console.print("3. [red]Salir de la Aplicación[/red]")
+        console.print("1. [cyan]Reintentar por Euler[/cyan] (Misma función, nuevos parámetros)")
+        console.print("2. [blue]Reintentar por Heun[/blue] (Misma función, nuevos parámetros)")
+        console.print("3. [yellow]Regresar al Menú Principal[/yellow]")
+        console.print("4. [red]Salir de la Aplicación[/red]")
         
         choice = input("\nOpción: ").strip()
         
         if choice == "1":
-            continue # Vuelve a pedir x0, y0...
+            current_method = 'EULER'
+            continue 
         elif choice == "2":
-            break # Sale de este loop y vuelve a main_menu
+            current_method = 'HEUN'
+            continue
         elif choice == "3":
+            break 
+        elif choice == "4":
             console.print("[yellow]Saliendo...[/yellow]")
             sys.exit(0)
         else:

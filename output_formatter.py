@@ -47,50 +47,66 @@ def display_results_table(h: float,
     base_list = euler_points if euler_points else improved_euler_points
     num_steps = len(base_list)
 
+    # Orden solicitado: Exacta antes que aproximaciones
+    if real_values:
+        table.add_column("Verdadero y(x)", justify="right", style="white")
+
     if euler_points:
         table.add_column("Euler y_i", justify="right", style="yellow")
     if improved_euler_points:
         table.add_column("Heun y_i", justify="right", style="blue")
     
     if real_values:
-        table.add_column("Verdadero y(x)", justify="right", style="white")
         table.add_column("% Error", justify="right", style="red")
 
     for i in range(num_steps):
-        # Obtenemos x del que esté disponible (serán iguales si hay ambos)
+        # Obtenemos x del que esté disponible
         x_val = base_list[i][0]
         f_x = f"{x_val:.4f}"
         
         row_data = [str(i), f_x]
         
-        # Valor aproximado para calcular error (priorizamos Heun si existe, sino Euler)
+        # Buffer para datos aproximados para añadirlos después de la exacta
+        approx_data = []
+
+        # Valor aproximado para calcular error
         y_approx = 0.0
         
-        if euler_points:
-            y_eu = euler_points[i][1]
-            row_data.append(f"{y_eu:.8g}")
-            if not improved_euler_points: y_approx = y_eu # Si solo es Euler, el error es de Euler
-
-        if improved_euler_points:
-            y_imp = improved_euler_points[i][1]
-            row_data.append(f"{y_imp:.8g}")
-            y_approx = y_imp # Prioridad para error
+        # Procesar exacta para añadirla primero si existe
+        val_real = float('nan')
+        f_real = "N/A"
+        f_error = "N/A"
 
         if real_values:
             val_real = real_values[i]
-            
             if math.isnan(val_real):
                 f_real = "N/A"
-                f_error = "N/A"
             else:
-                f_real = f"{val_real:.8g}"
+                # Forzar 8 decimales Fijos (.8f)
+                f_real = f"{val_real:.8f}"
+            
+            row_data.append(f_real)
+
+        if euler_points:
+            y_eu = euler_points[i][1]
+            approx_data.append(f"{y_eu:.8f}")
+            if not improved_euler_points: y_approx = y_eu
+
+        if improved_euler_points:
+            y_imp = improved_euler_points[i][1]
+            approx_data.append(f"{y_imp:.8f}")
+            y_approx = y_imp 
+
+        row_data.extend(approx_data)
+
+        if real_values:
+            if not math.isnan(val_real):
                 if abs(val_real) < 1e-12:
                     f_error = "undef"
                 else:
                     err = abs((val_real - y_approx) / val_real) * 100.0
-                    f_error = f"{err:.4g}%"
+                    f_error = f"{err:.4f}%" # Error también con formato fijo limpio
             
-            row_data.append(f_real)
             row_data.append(f_error)
         
         table.add_row(*row_data)
