@@ -23,7 +23,7 @@ console = Console()
 
 def show_header():
     """Muestra el banner principal de la aplicación."""
-    console.clear()
+    console.rule()
     console.print(Panel.fit(
         "[bold magenta]Solucionador Numérico de EDOs[/bold magenta]\n"
         "[dim]Métodos de Euler y Heun[/dim]",
@@ -37,7 +37,8 @@ def solve_single_method(initial_method: str):
     """
     current_method = initial_method
     
-    console.print(f"\n[bold green]-- Nueva Resolución --[/bold green]")
+    console.rule()
+    console.print(f"\n[bold green]-- Nueva Función --[/bold green]")
     
     console.print("Ingrese la función f(x, y) para la EDO [bold]y' = f(x, y)[/bold]")
     f_func, f_str = get_function_input("f(x, y) = ")
@@ -52,8 +53,17 @@ def solve_single_method(initial_method: str):
         y0 = get_float("Ingrese valor inicial y0: ")
         tf = get_float("Ingrese valor final x_final: ", greater_than=t0)
         h = get_float("Ingrese tamaño de paso h: ", min_val=0.000001)
-        
-        display_summary(t0, y0, tf, h, f_str)
+
+        console.rule()
+
+        # Mostrar función actual (Movido a petición del usuario para estar cerca de resultados)
+        console.print("")
+        console.print(Panel(
+            f"[bold green]{f_str}[/bold green]",
+            title="[green]Función EDO Original[/green]",
+            border_style="green",
+            expand=False
+        ))
         
         try:
             euler_pts = None
@@ -75,9 +85,10 @@ def solve_single_method(initial_method: str):
                         real_func, expr_str = result_exact
                         
                         # Mostrar la función estilizada en un Panel Verde
+                        console.print("")
                         console.print(Panel(
                             f"[bold]y(x) = {expr_str}[/bold]",
-                            title="[green]✔ Solución Analítica Encontrada[/green]",
+                            title="[green]Solución Analítica Encontrada[/green]",
                             border_style="green",
                             expand=False
                         ))
@@ -90,10 +101,13 @@ def solve_single_method(initial_method: str):
                 pass 
             # Mostrar tabla adaptada
             display_results_table(h, euler_points=euler_pts, improved_euler_points=improved_pts, real_values=real_values)
+            display_summary(t0, y0, tf, h, f_str)
             
         except Exception as e:
             console.print(f"[bold red]Error de cálculo:[/bold red] {e}")
             
+        console.rule()
+
         # Menú Post-Cálculo Avanzado
         console.print("\n[bold]¿Qué desea hacer?[/bold]")
         console.print("1. [cyan]Reintentar por Euler[/cyan] (Misma función, nuevos parámetros)")
