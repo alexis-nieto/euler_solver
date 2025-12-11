@@ -8,13 +8,17 @@ import sys
 from input_handler import get_float, get_int, get_function_input
 import interface
 import simulation
+from rich.console import Console
+console = Console()
 
 def run_solver_flow(initial_method: str):
     """Flujo de resolución de EDO: Input -> Simulación -> Resultados."""
     current_method = initial_method
     
     interface.print_separator()
-    interface.show_info("-- Nueva Función --")
+    console.print("")
+    interface.show_info("### Nueva Función ###")
+    console.print("")
     
     # 1. Obtener Función
     print("Ingrese la función f(x, y) para la EDO y' = f(x, y)")
@@ -24,12 +28,13 @@ def run_solver_flow(initial_method: str):
         # 2. Configurar Parámetros
         interface.show_info(f"\nConfiguración para: {current_method}")
         
-        t0 = get_float("Ingrese valor inicial x0")
-        y0 = get_float("Ingrese valor inicial y0")
+        t0 = get_float("Ingrese valor inicial x_0")
+        y0 = get_float("Ingrese valor inicial y_0")
         tf = get_float("Ingrese valor final x_final", greater_than=t0)
         h = get_float("Ingrese tamaño de paso h", min_val=0.000001)
-        decimals = get_int("Decimales de precisión (default 8)", min_val=0, max_val=20, default=8)
+        decimals = get_int("Cifras significativas, default -> ", min_val=0, max_val=20, default=8)
 
+        console.print("")
         interface.print_separator()
 
         # 3. Mostrar Resumen Previo

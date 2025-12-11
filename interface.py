@@ -19,8 +19,8 @@ def show_header():
     console.rule()
     console.print(Panel.fit(
         "[bold]Solucionador Numérico de EDOs[/bold]\n"
-        "Métodos de Euler y Heun",
-        border_style="white"
+        "Métodos de Euler y Euler Mejorado (Heun)",
+        border_style="green"
     ))
 
 def show_function_panel(func_str: str):
@@ -49,7 +49,7 @@ def show_error(message: str):
 
 def show_info(message: str):
     """Muestra un mensaje de información/warning estandarizado."""
-    console.print(f"[dim]{message}[/dim]")
+    console.print(f"[green]{message}[/green]")
 
 def display_summary(x0: float, y0: float, x_final: float, h: float, func_str: str):
     """Muestra resumen de parámetros."""
@@ -156,7 +156,7 @@ def get_main_menu_choice() -> str:
     """Muestra y captura opción del menú principal."""
     console.print("\n[bold]Seleccione el Método Numérico:[/bold]")
     console.print("1. Método de Euler")
-    console.print("2. Euler Mejorado (Heun)")
+    console.print("2. Método de Euler Mejorado (Heun)")
     console.print("3. [red]Salir[/red]")
     return input("\nSeleccione una opción (1-3): ").strip()
 

@@ -86,3 +86,4 @@ def get_function_input(prompt_text: str) -> Tuple[Callable[[float, float], float
 def wait_for_enter():
     """Pausa la ejecución hasta que el usuario presione Enter."""
     console.input("\n[dim]Presione <Enter> para continuar...[/dim]")
+
