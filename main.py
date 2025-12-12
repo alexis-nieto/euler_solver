@@ -8,6 +8,7 @@ import sys
 from input_handler import get_float, get_int, get_function_input
 import interface
 import simulation
+import plotting
 from rich.console import Console
 console = Console()
 
@@ -59,20 +60,34 @@ def run_solver_flow(initial_method: str):
         interface.print_separator()
 
         # 6. Menú Post-Cálculo
-        choice = interface.get_post_calc_choice()
-        
-        if choice == "1":
-            current_method = 'EULER'
-        elif choice == "2":
-            current_method = 'HEUN'
-        elif choice == "3":
-            return # Volver al menú principal
-        elif choice == "4":
-            interface.show_info("Saliendo...")
-            sys.exit(0)
-        else:
-            interface.show_error("Opción no válida.")
-            return
+        while True:
+            choice = interface.get_post_calc_choice()
+            
+            if choice == "1":
+                current_method = 'EULER'
+                break
+            elif choice == "2":
+                current_method = 'HEUN'
+                break
+            elif choice == "3":
+                try:
+                    plotting.plot_results(results, f_func, t0, y0, tf, f_str)
+                except Exception as e:
+                    interface.show_error(f"Error al graficar: {e}")
+                interface.wait_for_enter()
+            elif choice == "4":
+                try:
+                    plotting.plot_error_comparison(results, t0, f_str)
+                except Exception as e:
+                    interface.show_error(f"Error al graficar errores: {e}")
+                interface.wait_for_enter()
+            elif choice == "5":
+                return # Volver al menú principal
+            elif choice == "6":
+                interface.show_info("Saliendo...")
+                sys.exit(0)
+            else:
+                interface.show_error("Opción no válida.")
 
 def main():
     """Bucle principal de la aplicación."""

@@ -198,8 +198,10 @@ def get_post_calc_choice() -> str:
     console.print("\n[bold]¿Qué desea hacer?[/bold]")
     console.print("1. Reintentar por Euler (Misma función, nuevos parámetros)")
     console.print("2. Reintentar por Heun (Misma función, nuevos parámetros)")
-    console.print("3. Regresar al Menú Principal")
-    console.print("4. [red]Salir de la Aplicación[/red]")
+    console.print("3. Graficar Resultados")
+    console.print("4. Graficar Errores")
+    console.print("5. Regresar al Menú Principal")
+    console.print("6. [red]Salir de la Aplicación[/red]")
     return input("\nOpción: ").strip()
 
 def print_separator():

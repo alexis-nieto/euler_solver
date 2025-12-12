@@ -10,6 +10,7 @@ Aplicación interactiva en Python para resolver Ecuaciones Diferenciales Ordinar
   - Comparación entre versión simple e iterada
 - **Solución Exacta**: Búsqueda automática de soluciones analíticas cuando existen
 - **Análisis de Errores**: Cálculo de errores relativos porcentuales
+- **Gráficos**: Visualización de resultados y análisis de errores
 - **Interfaz Interactiva**: Menú intuitivo con Rich console
 
 ## Requisitos
@@ -18,6 +19,8 @@ Aplicación interactiva en Python para resolver Ecuaciones Diferenciales Ordinar
 - Dependencias (ver `pyproject.toml`):
   - `rich`: Para interfaz de consola
   - `sympy`: Para parsing y resolución simbólica de EDOs
+  - `matplotlib`: Para visualización de gráficos
+  - `numpy`: Para cálculos numéricos
 
 ## Instalación
 
