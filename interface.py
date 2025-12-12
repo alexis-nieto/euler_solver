@@ -104,12 +104,16 @@ def display_results(sim_data: Dict[str, Any], h: float, decimals: int = 8):
     if heun_points:
         table.add_column("Heun y_i", justify="right")
     
+    # Nueva columna: Error absoluto de Heun (simple)
+    if heun_points and heun_points_iterated:
+        table.add_column("% Error", justify="right", style="yellow")
+    
     # Nueva columna: Heun con corrector iterado
     if heun_points_iterated:
         table.add_column("Heun Iterado y_i", justify="right", style="cyan")
     
     if real_values:
-        table.add_column("% Error", justify="right", style="red")
+        table.add_column("% Error Iterado", justify="right", style="red")
 
     # Llenado de filas
     for i in range(num_steps):
@@ -139,6 +143,18 @@ def display_results(sim_data: Dict[str, Any], h: float, decimals: int = 8):
             y_imp = heun_points[i][1]
             approx_data.append(f"{y_imp:.{decimals}f}")
             y_approx_for_error = y_imp
+
+        # Error Porcentual de Heun simple respecto al valor verdadero
+        if heun_points and heun_points_iterated and real_values:
+            y_simple = heun_points[i][1]
+            if not math.isnan(val_real):
+                if abs(val_real) < 1e-12:
+                    approx_data.append("undef")
+                else:
+                    err = abs((val_real - y_simple) / val_real) * 100.0
+                    approx_data.append(f"{err:.4f}%")
+            else:
+                approx_data.append("N/A")
 
         # Heun (iterado)
         if heun_points_iterated:

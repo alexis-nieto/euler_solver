@@ -70,7 +70,7 @@ def improved_euler_method(f: Callable[[float, float], float],
                                           y_i_single: resultado con 1 corrección
                                           y_i_iterated: resultado con iteraciones completas
     """
-    points = []
+    points = [(x0, y0, y0)]  # Punto inicial: iteración 0
     curr_x = x0
     curr_y = y0
 
