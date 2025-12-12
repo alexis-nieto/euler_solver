@@ -76,32 +76,34 @@ def improved_euler_method(f: Callable[[float, float], float],
     curr_y_iter = y0    # Para seguimiento de Heun iterado
 
     while curr_x < x_end - 1e-9:
-        # Paso 1: Calcular la pendiente en el punto actual (común con Euler)
-        # k1 = f(x_i, y_i) - usamos el valor de una iteración como base
-        k1 = f(curr_x, curr_y_single)
+        # Paso 1: Calcular la pendiente en el punto actual para versión simple
+        # k1 = f(x_i, y_i)
+        k1_single = f(curr_x, curr_y_single)
         
         # Paso 2: Predecir el siguiente punto usando Euler simple
-        # y_predict = y_i + h * k1
-        # x_next = x_i + h
         x_next = curr_x + h
-        y_predict = curr_y_single + h * k1
+        y_predict_single = curr_y_single + h * k1_single
         
         # Paso 3: Calcular la pendiente en el punto predicho
-        # k2 = f(x_{i+1}, y_{i+1}^*)
-        k2 = f(x_next, y_predict)
+        k2_single = f(x_next, y_predict_single)
         
         # Paso 4: Corrección simple (una iteración)
-        # y_{i+1}^(1) = y_i + (h/2) * (k1 + k2)
-        y_single_correction = curr_y_single + (h / 2.0) * (k1 + k2)
+        y_single_correction = curr_y_single + (h / 2.0) * (k1_single + k2_single)
+        
+        # Ahora para la versión iterada, usar su propia trayectoria
+        k1_iter = f(curr_x, curr_y_iter)
+        y_predict_iter = curr_y_iter + h * k1_iter
+        k2_iter = f(x_next, y_predict_iter)
+        
+        # Corrección simple (una iteración) para versión iterada
+        y_iterated = curr_y_iter + (h / 2.0) * (k1_iter + k2_iter)
         
         # Paso 5: Correcciones iteradas si corrector_iterations > 1
-        # Partimos de la versión simple para las iteraciones adicionales
-        y_iterated = y_single_correction
         if corrector_iterations > 1:
             for _ in range(corrector_iterations - 1):
                 # y_{i+1}^(k) = y_i + (h/2) * [ f(x_i, y_i) + f(x_{i+1}, y_{i+1}^(k-1)) ]
-                k2_new = f(x_next, y_iterated)
-                y_iterated = curr_y_single + (h / 2.0) * (k1 + k2_new)
+                k2_iter_new = f(x_next, y_iterated)
+                y_iterated = curr_y_iter + (h / 2.0) * (k1_iter + k2_iter_new)
         
         # Actualizar x y guardar tanto la versión simple como la iterada
         curr_x = x_next
