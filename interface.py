@@ -158,7 +158,7 @@ def display_results(sim_data: Dict[str, Any], h: float, decimals: int = 8):
                     approx_data.append("~0")
                 else:
                     err = abs((val_real - y_simple) / val_real) * 100.0
-                    approx_data.append(f"{err:.4f}%")
+                    approx_data.append(f"{err:.{decimals}f}%")
             else:
                 approx_data.append("N/A")
 
@@ -177,7 +177,7 @@ def display_results(sim_data: Dict[str, Any], h: float, decimals: int = 8):
                     row_data.append("~0")
                 else:
                     err = abs((val_real - y_approx_for_error) / val_real) * 100.0
-                    row_data.append(f"{err:.4f}%")
+                    row_data.append(f"{err:.{decimals}f}%")
             else:
                 row_data.append("N/A")
         
