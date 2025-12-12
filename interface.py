@@ -72,6 +72,7 @@ def display_results(sim_data: Dict[str, Any], h: float, decimals: int = 8):
 
     euler_points = sim_data.get('euler_points')
     heun_points = sim_data.get('heun_points')
+    heun_points_iterated = sim_data.get('heun_points_iterated')
     real_values = sim_data.get('exact_points')
     
     # Determinar título dinámico
@@ -103,6 +104,10 @@ def display_results(sim_data: Dict[str, Any], h: float, decimals: int = 8):
     if heun_points:
         table.add_column("Heun y_i", justify="right")
     
+    # Nueva columna: Heun con corrector iterado
+    if heun_points_iterated:
+        table.add_column("Heun Iterado y_i", justify="right", style="cyan")
+    
     if real_values:
         table.add_column("% Error", justify="right", style="red")
 
@@ -112,7 +117,7 @@ def display_results(sim_data: Dict[str, Any], h: float, decimals: int = 8):
         row_data = [str(i), f"{x_val:.4f}"]
         
         approx_data = [] # Buffer para datos numéricos
-        y_approx_for_error = 0.0 # Para calcular error (usa Euler si no hay Heun, o Heun si hay)
+        y_approx_for_error = 0.0 # Para calcular error (usa la versión iterada si hay, sino la simple)
 
         # Exacta
         val_real = float('nan')
@@ -129,11 +134,17 @@ def display_results(sim_data: Dict[str, Any], h: float, decimals: int = 8):
             approx_data.append(f"{y_eu:.{decimals}f}")
             if not heun_points: y_approx_for_error = y_eu
 
-        # Heun
+        # Heun (simple)
         if heun_points:
             y_imp = heun_points[i][1]
             approx_data.append(f"{y_imp:.{decimals}f}")
             y_approx_for_error = y_imp
+
+        # Heun (iterado)
+        if heun_points_iterated:
+            y_iter = heun_points_iterated[i][1]
+            approx_data.append(f"{y_iter:.{decimals}f}")
+            y_approx_for_error = y_iter  # Usar la versión iterada para calcular error
 
         row_data.extend(approx_data)
 

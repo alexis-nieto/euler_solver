@@ -32,6 +32,9 @@ def run_solver_flow(initial_method: str):
         y0 = get_float("Ingrese valor inicial y_0")
         tf = get_float("Ingrese valor final x_final", greater_than=t0)
         h = get_float("Ingrese tamaño de paso h", min_val=0.000001)
+        corrector_iterations = 1
+        if current_method == 'HEUN':
+            corrector_iterations = get_int("Número de iteraciones del corrector (Heun), default -> ", min_val=1, max_val=100, default=1)
         decimals = get_int("Cifras significativas, default -> ", min_val=0, max_val=20, default=8)
 
         console.print("")
@@ -42,7 +45,7 @@ def run_solver_flow(initial_method: str):
         
         # 4. Ejecutar Simulación
         with interface.show_status(f"[bold]Calculando ({current_method})...[/bold]"):
-            results = simulation.run_simulation(current_method, f_func, f_str, t0, y0, h, tf)
+            results = simulation.run_simulation(current_method, f_func, f_str, t0, y0, h, tf, corrector_iterations)
         
         # 5. Mostrar Resultados
         if results.get('exact_func_str'):

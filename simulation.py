@@ -14,7 +14,8 @@ def run_simulation(method_type: str,
                    x0: float, 
                    y0: float, 
                    h: float, 
-                   tf: float) -> Dict[str, Any]:
+                   tf: float,
+                   corrector_iterations: int = 1) -> Dict[str, Any]:
     """
     Ejecuta la simulación completa bajo los parámetros dados.
 
@@ -25,6 +26,7 @@ def run_simulation(method_type: str,
         x0, y0: Condiciones iniciales.
         h: Paso.
         tf: x final.
+        corrector_iterations: Número de iteraciones del corrector (solo para HEUN).
 
     Returns:
         Un diccionario con los resultados:
@@ -32,6 +34,7 @@ def run_simulation(method_type: str,
             'method': str,
             'euler_points': List or None,
             'heun_points': List or None,
+            'heun_points_iterated': List or None,
             'exact_points': List or None,
             'exact_func_str': str or None,
             'error': str (si hubo excepción)
@@ -41,6 +44,7 @@ def run_simulation(method_type: str,
         'method': method_type,
         'euler_points': None,
         'heun_points': None,
+        'heun_points_iterated': None,
         'exact_points': None,
         'exact_func_str': None,
         'error': None
@@ -51,7 +55,11 @@ def run_simulation(method_type: str,
         if method_type == 'EULER':
             results['euler_points'] = euler_method(func, x0, y0, h, tf)
         elif method_type == 'HEUN':
-            results['heun_points'] = improved_euler_method(func, x0, y0, h, tf)
+            heun_results = improved_euler_method(func, x0, y0, h, tf, corrector_iterations)
+            # Separar los resultados: (x, y_single, y_iterated)
+            results['heun_points'] = [(x, y_single) for x, y_single, _ in heun_results]
+            if corrector_iterations > 1:
+                results['heun_points_iterated'] = [(x, y_iter) for x, _, y_iter in heun_results]
 
         # 2. Intentar Solución Exacta
         # Solo calculamos si tenemos puntos de referencia (que deberíamos tener)
