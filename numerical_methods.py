@@ -72,18 +72,19 @@ def improved_euler_method(f: Callable[[float, float], float],
     """
     points = [(x0, y0, y0)]  # Punto inicial: iteración 0
     curr_x = x0
-    curr_y = y0
+    curr_y_single = y0  # Para seguimiento de Heun simple
+    curr_y_iter = y0    # Para seguimiento de Heun iterado
 
     while curr_x < x_end - 1e-9:
         # Paso 1: Calcular la pendiente en el punto actual (común con Euler)
-        # k1 = f(x_i, y_i)
-        k1 = f(curr_x, curr_y)
+        # k1 = f(x_i, y_i) - usamos el valor de una iteración como base
+        k1 = f(curr_x, curr_y_single)
         
         # Paso 2: Predecir el siguiente punto usando Euler simple
         # y_predict = y_i + h * k1
         # x_next = x_i + h
         x_next = curr_x + h
-        y_predict = curr_y + h * k1
+        y_predict = curr_y_single + h * k1
         
         # Paso 3: Calcular la pendiente en el punto predicho
         # k2 = f(x_{i+1}, y_{i+1}^*)
@@ -91,19 +92,21 @@ def improved_euler_method(f: Callable[[float, float], float],
         
         # Paso 4: Corrección simple (una iteración)
         # y_{i+1}^(1) = y_i + (h/2) * (k1 + k2)
-        y_single_correction = curr_y + (h / 2.0) * (k1 + k2)
+        y_single_correction = curr_y_single + (h / 2.0) * (k1 + k2)
         
         # Paso 5: Correcciones iteradas si corrector_iterations > 1
+        # Partimos de la versión simple para las iteraciones adicionales
         y_iterated = y_single_correction
         if corrector_iterations > 1:
             for _ in range(corrector_iterations - 1):
                 # y_{i+1}^(k) = y_i + (h/2) * [ f(x_i, y_i) + f(x_{i+1}, y_{i+1}^(k-1)) ]
                 k2_new = f(x_next, y_iterated)
-                y_iterated = curr_y + (h / 2.0) * (k1 + k2_new)
+                y_iterated = curr_y_single + (h / 2.0) * (k1 + k2_new)
         
         # Actualizar x y guardar tanto la versión simple como la iterada
         curr_x = x_next
-        curr_y = y_iterated  # Continuamos con la versión iterada
+        curr_y_single = y_single_correction  # Seguir con versión simple para próximo paso
+        curr_y_iter = y_iterated              # Seguir con versión iterada para próximo paso
         points.append((curr_x, y_single_correction, y_iterated))
         
     return points
