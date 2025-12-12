@@ -20,12 +20,21 @@ def euler_method(f: Callable[[float, float], float],
         f (Callable): La función derivada f(x, y).
         x0 (float): Valor inicial de x.
         y0 (float): Valor inicial de y (condición inicial).
-        h (float): Tamaño del paso.
-        x_end (float): Valor final de x hasta donde integrar.
+        h (float): Tamaño del paso (debe ser > 0).
+        x_end (float): Valor final de x hasta donde integrar (debe ser > x0).
+
+    Raises:
+        ValueError: Si los parámetros son inválidos.
 
     Returns:
         List[Tuple[float, float]]: Lista de tuplas (x_i, y_i) con los resultados.
     """
+    # Validación de parámetros
+    if h <= 0:
+        raise ValueError(f"El tamaño de paso h debe ser positivo, se recibió: {h}")
+    if x_end <= x0:
+        raise ValueError(f"x_end ({x_end}) debe ser mayor que x0 ({x0})")
+    
     points = [(x0, y0)]
     curr_x = x0
     curr_y = y0
@@ -61,15 +70,26 @@ def improved_euler_method(f: Callable[[float, float], float],
         f (Callable): La función derivada f(x, y).
         x0 (float): Valor inicial de x.
         y0 (float): Valor inicial de y (condición inicial).
-        h (float): Tamaño del paso.
-        x_end (float): Valor final de x.
-        corrector_iterations (int): Número de iteraciones del corrector (default 1).
+        h (float): Tamaño del paso (debe ser > 0).
+        x_end (float): Valor final de x (debe ser > x0).
+        corrector_iterations (int): Número de iteraciones del corrector (default 1, debe ser >= 1).
+
+    Raises:
+        ValueError: Si los parámetros son inválidos.
 
     Returns:
         List[Tuple[float, float, float]]: Lista de tuplas (x_i, y_i_single, y_i_iterated) con los resultados.
                                           y_i_single: resultado con 1 corrección
                                           y_i_iterated: resultado con iteraciones completas
     """
+    # Validación de parámetros
+    if h <= 0:
+        raise ValueError(f"El tamaño de paso h debe ser positivo, se recibió: {h}")
+    if x_end <= x0:
+        raise ValueError(f"x_end ({x_end}) debe ser mayor que x0 ({x0})")
+    if corrector_iterations < 1:
+        raise ValueError(f"El número de iteraciones del corrector debe ser >= 1, se recibió: {corrector_iterations}")
+    
     points = [(x0, y0, y0)]  # Punto inicial: iteración 0
     curr_x = x0
     curr_y_single = y0  # Para seguimiento de Heun simple

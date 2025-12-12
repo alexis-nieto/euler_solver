@@ -53,12 +53,18 @@ def show_info(message: str):
 
 def display_summary(x0: float, y0: float, x_final: float, h: float, func_str: str):
     """Muestra resumen de parámetros."""
+    import math
     console.print("\n[bold underline]Resumen de Parámetros:[/bold underline]")
     console.print(f" • EDO: [bold]y' = {func_str}[/bold]")
     console.print(f" • Condición Inicial: y({x0}) = {y0}")
     console.print(f" • Intervalo: [{x0}, {x_final}]")
     console.print(f" • Paso (h): {h}")
-    console.print(f" • Pasos estimados: {int((x_final - x0)/h)}")
+    
+    # Cálculo más preciso del número de pasos
+    num_steps = math.ceil((x_final - x0) / h)
+    actual_x_final = x0 + num_steps * h
+    console.print(f" • Pasos: {num_steps}")
+    console.print(f" • Intervalo real: [{x0}, {actual_x_final:.6g}]")
     console.print("")
 
 def display_results(sim_data: Dict[str, Any], h: float, decimals: int = 8):
@@ -149,7 +155,7 @@ def display_results(sim_data: Dict[str, Any], h: float, decimals: int = 8):
             y_simple = heun_points[i][1]
             if not math.isnan(val_real):
                 if abs(val_real) < 1e-12:
-                    approx_data.append("undef")
+                    approx_data.append("~0")
                 else:
                     err = abs((val_real - y_simple) / val_real) * 100.0
                     approx_data.append(f"{err:.4f}%")
@@ -168,7 +174,7 @@ def display_results(sim_data: Dict[str, Any], h: float, decimals: int = 8):
         if real_values:
             if not math.isnan(val_real):
                 if abs(val_real) < 1e-12:
-                    row_data.append("undef")
+                    row_data.append("~0")
                 else:
                     err = abs((val_real - y_approx_for_error) / val_real) * 100.0
                     row_data.append(f"{err:.4f}%")
